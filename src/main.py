@@ -2,12 +2,12 @@ import sys
 
 
 class Automaton:
-    __states = {}
-    __alphabet = []
-    __start = "q1"
-    __end = []
-
     def __init__(self, num_states, alphabet):
+        self.__states = {}
+        self.__alphabet = []
+        self.__start = "q1"
+        self.__end = []
+
         for i in range(num_states):
             self.__states[f"q{i + 1}"] = []
 
@@ -52,6 +52,9 @@ class Automaton:
 
     def get_states(self):
         return self.__states.keys()
+
+    def get_states_num(self):
+        return len(self.__states.keys())
 
     def get_alphabet(self):
         return self.__alphabet
@@ -118,6 +121,7 @@ def scan_automaton():
     )
 
     automaton.set_end(sys.stdin.readline())
+    print()
 
     return automaton
 
@@ -125,8 +129,30 @@ def scan_automaton():
 def parse_automaton_to_regex(automaton: Automaton, k, i, j):
     if k == 0:
         if i == j:
-            return "λ" + "+".join(automaton.get_transitions(i, j))
+            return (
+                f"(λ+{'+'.join(automaton.get_transitions('q' + str(i), 'q' + str(j)))})"
+            )
         else:
-            return "+".join(automaton.get_transitions(i, j))
+            return (
+                f"({'+'.join(automaton.get_transitions('q' + str(i), 'q' + str(j)))})"
+            )
     else:
         return f"({parse_automaton_to_regex(automaton, k - 1, i, k)}({parse_automaton_to_regex(automaton, k - 1, k, k)})*{parse_automaton_to_regex(automaton, k - 1, k, j)})+{parse_automaton_to_regex(automaton, k - 1, i, j)}"
+
+
+automaton = scan_automaton()
+expression = []
+
+for e in automaton.get_end():
+    expression.append(
+        parse_automaton_to_regex(
+            automaton,
+            automaton.get_states_num(),
+            int(automaton.get_start().replace("q", "")),
+            int(e.replace("q", "")),
+        )
+    )
+
+expression = "+".join(expression)
+
+print(f"Expressão resultante:\n    {expression}")
