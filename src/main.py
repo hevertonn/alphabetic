@@ -4,6 +4,8 @@ import sys
 class Automaton:
     __states = {}
     __alphabet = []
+    __start = "q1"
+    __end = []
 
     def __init__(self, num_states, alphabet):
         for i in range(num_states):
@@ -21,16 +23,32 @@ class Automaton:
                     self.__alphabet.append(token)
                     token = ""
 
-    def set_transition(self, qi, qj, character):
-        if qi not in self.__states.keys() or qj not in self.__states.keys():
-            print(f"Estados {qi} e {qj} não pertencem ao autômato")
+    def set_transition(self, origin, target, character):
+        if origin not in self.__states.keys() or target not in self.__states.keys():
+            print(f"Estados {origin} e {target} não pertencem ao autômato")
             return
 
         if character not in self.__alphabet:
             print(f"Caractere {character} não pertence ao alfabeto do autômato")
             return
 
-        self.__states[qi].append((character, qj))
+        self.__states[origin].append((character, target))
+
+    def set_end(self, end):
+        if type(end) is list:
+            self.__end = end
+        elif type(end) is str:
+            token = ""
+
+            for c in end:
+                if c != "," and c != "\n":
+                    token += c
+                elif token in self.__states.keys():
+                    self.__end.append(token)
+                    token = ""
+                else:
+                    print(f"Estado {token} não pertence ao autômato")
+                    token = ""
 
     def get_states(self):
         return self.__states.keys()
@@ -38,8 +56,27 @@ class Automaton:
     def get_alphabet(self):
         return self.__alphabet
 
+    def get_transitions(self, origin, target):
+        if origin not in self.__states.keys() or target not in self.__states.keys():
+            print(f"Estados {origin} e {target} não pertencem ao autômato")
+            return
+
+        transitions = []
+
+        for t in self.__states[origin]:
+            if t[1] == target:
+                transitions.append(t[0])
+
+        return transitions
+
+    def get_start(self):
+        return self.__start
+
+    def get_end(self):
+        return self.__end
+
     def string(self):
-        automaton_str = ""
+        automaton_str = "Estado inicial "
 
         for state, transactions in self.__states.items():
             automaton_str += state + ":\n    "
@@ -56,15 +93,40 @@ def scan_automaton():
     num_states = int(input("Digite o número de estados do autômato: "))
     print()
 
-    print("Digite os caracteres do alfabeto separados por vírgula:\n    ", end="")
+    print(
+        "Digite os caracteres do alfabeto separados por vírgula.\n    Caracteres: ",
+        end="",
+    )
     automaton = Automaton(num_states, sys.stdin.readline())
     print()
 
-    print("Defina as transições correspondentes:")
+    print("Defina as transições correspondentes.")
 
-    for i in automaton.get_states():
-        for j in automaton.get_alphabet():
-            automaton.set_transition(i, input(f"    δ({i}, {j}) = "), j)
+    for state in automaton.get_states():
+        for charactere in automaton.get_alphabet():
+            automaton.set_transition(
+                state, input(f"    δ({state}, {charactere}) = "), charactere
+            )
     print()
 
+    print("Autômato resultante:\n")
+    print(automaton.string())
+
+    print(
+        f"Defina os estados finais separados por virgula entre os seguintes.\n    Estados: {', '.join(automaton.get_states())}\n    Estados finais: ",
+        end="",
+    )
+
+    automaton.set_end(sys.stdin.readline())
+
     return automaton
+
+
+def parse_automaton_to_regex(automaton: Automaton, k, i, j):
+    if k == 0:
+        if i == j:
+            return "λ" + "+".join(automaton.get_transitions(i, j))
+        else:
+            return "+".join(automaton.get_transitions(i, j))
+    else:
+        return f"({parse_automaton_to_regex(automaton, k - 1, i, k)}({parse_automaton_to_regex(automaton, k - 1, k, k)})*{parse_automaton_to_regex(automaton, k - 1, k, j)})+{parse_automaton_to_regex(automaton, k - 1, i, j)}"
