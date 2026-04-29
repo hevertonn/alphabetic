@@ -77,7 +77,7 @@ class Automaton:
         return self.__end
 
     def string(self):
-        automaton_str = "Estado inicial "
+        automaton_str = "Initial state "
 
         for state, transactions in self.__states.items():
             automaton_str += state + ":\n    "
@@ -91,17 +91,17 @@ class Automaton:
 
 
 def scan_automaton():
-    num_states = int(input("Digite o número de estados do autômato: "))
+    num_states = int(input("Enter the number of automaton states: "))
     print()
 
     print(
-        "Digite os caracteres do alfabeto separados por vírgula.\n    Caracteres: ",
+        "Enter alphabet characters separated by comma.\n    Characters: ",
         end="",
     )
     automaton = Automaton(num_states, sys.stdin.readline())
     print()
 
-    print("Defina as transições correspondentes.")
+    print("Define the corresponding transitions.")
 
     for state in automaton.get_states():
         for charactere in automaton.get_alphabet():
@@ -110,11 +110,11 @@ def scan_automaton():
             )
     print()
 
-    print("Autômato resultante:\n")
+    print("Resulting automaton:\n")
     print(automaton.string())
 
     print(
-        f"Defina os estados finais separados por virgula entre os seguintes.\n    Estados: {', '.join(automaton.get_states())}\n    Estados finais: ",
+        f"Define the final states separated by comma between the following.\n    States: {', '.join(automaton.get_states())}\n    Final states: ",
         end="",
     )
 
@@ -153,4 +153,4 @@ for e in automaton.get_end():
 
 expression = "+".join(expression)
 
-print(f"Expressão resultante:\n    {expression}")
+print(f"Resulting expression:\n    {expression}")
