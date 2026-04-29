@@ -2,7 +2,7 @@ import sys
 
 
 class Automaton:
-    def __init__(self, num_states, alphabet):
+    def __init__(self, num_states: int, alphabet):
         self.__states = {}
         self.__alphabet = []
         self.__start = "q1"
@@ -22,15 +22,15 @@ class Automaton:
                 else:
                     self.__alphabet.append(token)
                     token = ""
+        else:
+            raise ValueError
 
     def set_transition(self, origin, target, character):
         if origin not in self.__states.keys() or target not in self.__states.keys():
-            print(f"Estados {origin} e {target} não pertencem ao autômato")
-            return
+            raise KeyError
 
         if character not in self.__alphabet:
-            print(f"Caractere {character} não pertence ao alfabeto do autômato")
-            return
+            raise ValueError
 
         self.__states[origin].append((character, target))
 
@@ -47,8 +47,7 @@ class Automaton:
                     self.__end.append(token)
                     token = ""
                 else:
-                    print(f"Estado {token} não pertence ao autômato")
-                    token = ""
+                    raise KeyError
 
     def get_states(self):
         return self.__states.keys()
@@ -61,8 +60,7 @@ class Automaton:
 
     def get_transitions(self, origin, target):
         if origin not in self.__states.keys() or target not in self.__states.keys():
-            print(f"Estados {origin} e {target} não pertencem ao autômato")
-            return
+            raise KeyError
 
         transitions = []
 
